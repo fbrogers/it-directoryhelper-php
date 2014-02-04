@@ -30,7 +30,6 @@ class DirectoryHelper extends DirectoryHelperConfig{
 	private $docs 	= [];
 	private $news 	= [];
 	private $roles 	= [];
-	private $staff 	= [];
 
 	//to prevent object instantiation
 	public function __construct($slug){
@@ -117,7 +116,7 @@ class DirectoryHelper extends DirectoryHelperConfig{
 		return $output;
 	}
 
-	//all alerts
+	//current news articles
 	public function PrintNews(){
 		$output = null;
 
@@ -134,6 +133,46 @@ class DirectoryHelper extends DirectoryHelperConfig{
 		$output .= '<div class="datestamp">';
 		$output .= '<a href="'.$this->archive_uri.'/'.$this->slug.'">&raquo;News Archive</a>';
 		$output .= '</div>';
+
+		return $output;
+	}	
+
+	//all staff
+	public function PrintStaff($headers = false){
+		$output = null;
+
+		if(!empty($this->roles)){
+			foreach($this->roles as $role){
+				$output .= $role->PrintRole($headers);
+			}
+		} else {
+			$output .= '<p>No staff members at this time.</p>';
+		}
+
+		return $output;
+	}	
+
+	//only staff in a single role
+	public function PrintRole($name){
+		$output = null;
+		$selected = null;
+
+		if(!empty($this->roles)){
+			foreach($this->roles as $role){
+				if(strtolower($role->GetName()) == strtolower($name)){
+					$selected = $role;
+				}
+			}
+
+			if($selected instanceof DirectoryHelperRole){
+				$output .= $selected->PrintRole();
+			} else {
+				$output .= '<p>No role by this name.</p>';
+			}
+
+		} else {
+			$output .= '<p>No staff members in this role.</p>';
+		}
 
 		return $output;
 	}	
@@ -339,7 +378,46 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 class DirectoryHelperRole extends DirectoryHelperConfig{
-	
+	private $id;
+	private $name;
+	private $staff = [];
+
+	public function __construct($json){
+		parent::__construct();
+
+		//populate properties with json values
+		if(!empty($json)){
+			$this->id = $json['id'];
+			$this->name = strip_tags($json['name']);
+
+			//create child objects
+			foreach ($json['staff'] as $member) {
+				$this->staff[] = new DirectoryHelperStaff($member);
+			}
+		}
+	}
+
+	public function GetName(){
+		return $this->name;
+	}
+
+	public function PrintRole($headers = false){
+		$output = null;
+
+		if($this->id == null){
+			return $output;
+		}
+
+		if($headers){
+			$output .= '<div class="staff-role">'.$this->name.'</div>';
+		}
+
+		foreach($this->staff as $member){
+			$output .= $member->PrintStaff();
+		}		
+
+		return $output;
+	}	
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -347,7 +425,81 @@ class DirectoryHelperRole extends DirectoryHelperConfig{
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 class DirectoryHelperStaff extends DirectoryHelperConfig{
+	private $id;
+	private $fname;
+	private $lname;
+	private $prefix;
+	private $suffix;
+	private $name;
+	private $email;
+	private $phone;
+	private $title;
+	private $details;
+	private $isPrimary;
+	private $image;
 
+	public function __construct($json){
+		parent::__construct();
+
+		//populate properties with json values
+		if(!empty($json)){
+			$this->id           = $json['id'];
+			$this->fname        = $json['fname'];
+			$this->lname        = $json['lname'];
+			$this->prefix       = $json['prefix'];
+			$this->suffix       = $json['suffix'];
+			$this->email        = $json['email'];
+			$this->phone        = $json['phone'];
+			$this->title        = $json['title'];
+			$this->details      = strip_tags($json['details'], $this->allowed_html);
+			$this->isPrimary    = $json['isPrimary'];
+			$this->image        = $json['image'];
+
+			//construct full name
+			$this->name = $this->fname.' '.$this->lname;
+			if($this->prefix != null){
+				$this->name = $this->prefix.' '.$this->name;
+			}
+			if($this->suffix != null){
+				$this->name = $this->name.', '.$this->suffix;
+			}
+		}
+	}
+
+	public function PrintStaff(){
+		$output = null;
+
+		if($this->id == null){
+			return $output;
+		}
+
+		//start news block, image
+		$output .= '<div class="staff">';
+		$output .= '<img src="'.$this->directory_uri.$this->image.'" alt="thumb" />';
+		
+		//news content
+		$output .= '<div class="staff-content">';
+		$output .= '<div class="staff-name">'.$this->name.'</div>';
+		if($this->title != null){
+			$output .= '<div class="staff-title">'.$this->title.'</div>';
+		}
+		if($this->email != null){
+			$output .= '<div class="staff-email"><a href="mailto:'.$this->email.'">'.$this->email.'</a></div>';
+		}
+		if($this->phone != null){
+			$output .= '<div class="staff-phone">'.$this->phone.'</div>';
+		}
+
+		//news body
+		$output .= '<p class="staff-details">'.nl2br($this->details).'</p>';
+		
+		//end news block
+		$output .= '</div>';
+		$output .= '</div>';
+		$output .= '<div class="hr-blank"></div>';
+
+		return $output;
+	}
 }
 
 ?>
