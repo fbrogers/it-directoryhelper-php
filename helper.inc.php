@@ -1,19 +1,30 @@
 <?php
 
 class DirectoryHelperConfig{
-	//general settings
 	protected $directory_uri;
+	protected $archive_uri;
 	protected $feed_uri;
+	protected $blank_img;
+	protected $blank_user;
+	protected $allowed_html;
 
 	public function __construct(){
 		//open config file
 		$config = parse_ini_file('config.ini');
-		$this->directory_uri = $config['DIRECTORY_URI'];
-		$this->feed_uri = $config['FEED_URI'];
+
+		//set config properties
+		$this->directory_uri    = $config['DIRECTORY_URI'];
+		$this->archive_uri      = $config['ARCHIVE_URI'];
+		$this->feed_uri         = $config['FEED_URI'];
+		$this->blank_img        = $config['BLANK_IMG'];
+		$this->blank_user       = $config['BLANK_USER'];
+		$this->allowed_html     = "<a><p><br><ol><ul><li><strong><em>";
 	}
 }
 
 class DirectoryHelper extends DirectoryHelperConfig{
+	private $slug;
+
 	//object containers
 	private $alerts	= [];
 	private $docs 	= [];
@@ -24,9 +35,10 @@ class DirectoryHelper extends DirectoryHelperConfig{
 	//to prevent object instantiation
 	public function __construct($slug){
 		parent::__construct();
+		$this->slug = $slug;
 
 		//get data from feed specific to the site
-		$ch = curl_init($this->feed_uri.$slug);
+		$ch = curl_init($this->feed_uri.'/'.$slug);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
@@ -75,7 +87,7 @@ class DirectoryHelper extends DirectoryHelperConfig{
 	//all alerts
 	public function PrintAlerts(){
 		$output = null;
-		if(!empty($alerts)){
+		if(!empty($this->alerts)){
 			foreach($this->alerts as $alert){
 				$output .= $alert->PrintAlert();
 			}
@@ -104,6 +116,27 @@ class DirectoryHelper extends DirectoryHelperConfig{
 
 		return $output;
 	}
+
+	//all alerts
+	public function PrintNews(){
+		$output = null;
+
+		if(!empty($this->news)){
+			foreach($this->news as $article){
+				$output .= $article->PrintNews();
+			}
+		} else {
+			$output .= '<p>No news articles at this time.</p>';
+		}
+
+		//news footer
+		$output .= '<div class="top-b"></div>';
+		$output .= '<div class="datestamp">';
+		$output .= '<a href="'.$this->archive_uri.'/'.$this->slug.'">&raquo;News Archive</a>';
+		$output .= '</div>';
+
+		return $output;
+	}	
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -211,7 +244,94 @@ class DirectoryHelperDocument extends DirectoryHelperConfig{
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 class DirectoryHelperArticle extends DirectoryHelperConfig{
-	
+	private $id;
+	private $user;
+	private $title;
+	private $strapline;
+	private $summary;
+	private $extended;
+	private $thumb;
+	private $billboard;
+	private $url;
+	private $created;
+	private $modified;
+
+	public function __construct($json){
+		parent::__construct();
+
+		//populate properties with json values
+		if(!empty($json)){
+			$this->id           = $json['id'];
+			$this->title        = strip_tags($json['title']);
+			$this->strapline    = strip_tags($json['strapline']);
+			$this->summary      = strip_tags($json['summary'], $this->allowed_html);
+			$this->extended     = strip_tags($json['extended'], $this->allowed_html);
+			$this->thumb        = $json['thumb'];
+			$this->billboard    = $json['billboard'];
+			$this->url          = $json['url'];
+			$this->created      = $json['posted'];
+			$this->modified     = $json['modified'];
+
+			if($this->thumb == null){
+				$this->thumb = $this->blank_img;
+			}
+
+			if($this->user == null){
+				$this->user = $this->blank_user;
+			}
+
+			if(substr($this->url, 0, 6) == '/file/' || substr($this->url, 0, 9) == '/article/'){
+				$this->url = $this->directory_uri.$this->url;
+			}
+		}
+	}
+
+	public function PrintNews(){
+		$output = null;
+
+		if($this->id == null){
+			return $output;
+		}
+
+		//start news block, image
+		$output .= '<div class="news">';
+		$output .= '<img src="'.$this->directory_uri.$this->thumb.'" alt="thumb" />';
+		
+		//news content
+		$output .= '<div class="news-content">';
+
+		//title with or without link
+		if($this->url != null){
+			$output .= '<div class="news-title bullets">';
+			$output .= '<a href="'.$this->url.'">'.$this->title.'</a>';
+			$output .= '</div>';
+		} else {
+			$output .= '<div class="news-title">'.$this->title.'</div>';
+		}
+
+		//strapline
+		$output .= '<div class="news-strapline">'.$this->strapline.'</div>';
+		
+		//datestamp and authorship
+		$output .= '<div class="datestamp">';
+		$output .= date("l, F jS, Y @ g:ia", strtotime($this->created)).' by '.$this->user;
+		$output .= '</div>';
+
+		//news body
+		$output .= '<p class="news-summary">'.nl2br($this->summary).'</p>';
+		
+		//extended article link
+		if($this->extended != null){
+			$output .= '<p><a href="'.$this->url.'">[Read More]</p>';
+		}
+		
+		//end news block
+		$output .= '</div>';
+		$output .= '</div>';
+		$output .= '<div class="hr-blank"></div>';
+
+		return $output;
+	}
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
