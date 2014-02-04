@@ -38,7 +38,7 @@ class DirectoryHelper extends DirectoryHelperConfig{
 
 		//check to make sure only one site was returned
 		if(!isset($json['sites'], $json['sites'][0])){
-			throw new Exception("JSON Feed not found or malformed.", 1);			
+			throw new Exception("JSON Feed not found or malformed.", 1);
 		}
 
 		//isolate single site and CMS parts
@@ -127,16 +127,16 @@ class DirectoryHelperAlert extends DirectoryHelperConfig{
 
 		//populate properties with json values
 		if(!empty($json)){
-			$this->id 			= $json['id'];
-			$this->title 		= strip_tags($json['title']);
-			$this->message 		= strip_tags($json['message']);
-			$this->url 			= $json['url'];
-			$this->start 		= $json['start'];
-			$this->end 			= $json['end'];
-			$this->isPlanned 	= $json['isPlanned'];
-			$this->isSiteWide 	= $json['isSiteWide'];
-			$this->created 		= $json['created'];
-			$this->modified 	= $json['modified'];
+			$this->id           = $json['id'];
+			$this->title        = strip_tags($json['title']);
+			$this->message      = strip_tags($json['message']);
+			$this->url          = $json['url'];
+			$this->start        = $json['start'];
+			$this->end          = $json['end'];
+			$this->isPlanned    = $json['isPlanned'];
+			$this->isSiteWide   = $json['isSiteWide'];
+			$this->created      = $json['created'];
+			$this->modified     = $json['modified'];
 		}
 	}
 
@@ -180,12 +180,12 @@ class DirectoryHelperDocument extends DirectoryHelperConfig{
 
 		//populate properties with json values
 		if(!empty($json)){
-			$this->id 			= $json['id'];
-			$this->name 		= strip_tags($json['name']);
-			$this->slug 		= $json['slug'];
-			$this->url 			= $json['url'];
-			$this->created 		= $json['created'];
-			$this->modified 	= $json['modified'];
+			$this->id           = $json['id'];
+			$this->name         = strip_tags($json['name']);
+			$this->slug         = $json['slug'];
+			$this->url          = $json['url'];
+			$this->created      = $json['created'];
+			$this->modified     = $json['modified'];
 		}
 	}
 
