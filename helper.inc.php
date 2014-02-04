@@ -117,12 +117,14 @@ class DirectoryHelper extends DirectoryHelperConfig{
 	}
 
 	//current news articles
-	public function PrintNews(){
+	public function PrintNews($includeBillboards = false){
 		$output = null;
 
 		if(!empty($this->news)){
 			foreach($this->news as $article){
-				$output .= $article->PrintNews();
+				if(!$includeBillboards && !$article->HasBillboard()){
+					$output .= $article->PrintNews();
+				}
 			}
 		} else {
 			$output .= '<p>No news articles at this time.</p>';
@@ -133,6 +135,32 @@ class DirectoryHelper extends DirectoryHelperConfig{
 		$output .= '<div class="datestamp">';
 		$output .= '<a href="'.$this->archive_uri.'/'.$this->slug.'">&raquo;News Archive</a>';
 		$output .= '</div>';
+
+		return $output;
+	}	
+
+	//current news articles
+	public function PrintBillboard(){
+		$output = null;
+
+		if(!empty($this->news)){
+
+			$output .= '<div id="slate_container"><div id="slate"><div id="slider">';
+
+			foreach($this->news as $article){
+				if($article->HasBillboard() != null){
+					$output .= $article->PrintBillboard();
+				}
+			}
+
+			$output .= '</div></div></div>';
+
+			foreach($this->news as $article){
+				if($article->HasBillboard() != null){
+					$output .= $article->PrintBillboardCaptions();
+				}
+			}			
+		}
 
 		return $output;
 	}	
@@ -325,6 +353,10 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 		}
 	}
 
+	public function HasBillboard(){
+		return $this->billboard != null;
+	}
+
 	public function PrintNews(){
 		$output = null;
 
@@ -368,6 +400,41 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 		$output .= '</div>';
 		$output .= '</div>';
 		$output .= '<div class="hr-blank"></div>';
+
+		return $output;
+	}
+
+	public function PrintBillboard(){
+		$output = null;
+
+		if($this->billboard == null){
+			return $output;
+		}
+
+		$image_tag = '<img src="'.$this->directory_uri.$this->billboard.'" alt="thumb" title="#news'.$this->id.'" />';
+
+		//title with or without link
+		if($this->url != null){
+			$output .= '<a href="'.$this->url.'">'.$image_tag.'</a>';
+		} else {
+			$output .= $image_tag;
+		}
+
+		return $output;
+	}
+
+	public function PrintBillboardCaptions(){
+		$output = null;
+
+		if($this->billboard == null){
+			return $output;
+		}
+
+		$output .= '<div id="news'.$this->id.'" class="nivo-html-caption">';
+		$output .= '<div class="nivo-padding">';
+		$output .= '<div class="nivo-title">'.$this->title.'</div>';
+		$output .= '<div class="nivo-strapline">'.$this->strapline.'</div>';
+		$output .= '</div></div>';
 
 		return $output;
 	}
