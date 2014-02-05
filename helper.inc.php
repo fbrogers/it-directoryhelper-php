@@ -93,6 +93,14 @@ class DirectoryHelper extends DirectoryHelperConfig{
 	}
 
 /*-------------------------------------------------------------------------------------------------------------------*/
+/*--- DATA ACCESSORS ------------------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+	public function GetAlerts(){
+		return $this->alerts;
+	}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 /*--- HTML ACCESSORS ------------------------------------------------------------------------------------------------*/
 /*-------------------------------------------------------------------------------------------------------------------*/
 
@@ -270,6 +278,10 @@ class DirectoryHelperAlert extends DirectoryHelperConfig{
 		}
 	}
 
+	public function GetAlert(){
+		return [$this->title, $this->message, $this->url, $this->isPlanned, $this->isSiteWide];
+	}
+
 	public function PrintAlert(){
 		$output = null;
 
@@ -277,7 +289,7 @@ class DirectoryHelperAlert extends DirectoryHelperConfig{
 			return $output;
 		}
 
-		$output .= '<div class="cautionbar">';
+		$output .= $this->isPlanned ? '<div class="cautionbar">' : '<div class="alertbar">';
 		$output .= '<p><strong>'.$this->title.':</strong>';
 
 		if($this->url != null){
