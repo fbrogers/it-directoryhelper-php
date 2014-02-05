@@ -371,6 +371,8 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 
 			if($this->thumb == null){
 				$this->thumb = $this->blank_img;
+			} else {
+				$this->thumb = $this->directory_uri.$this->thumb;
 			}
 
 			if($this->user == null){
@@ -402,7 +404,7 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 
 		//start news block, image
 		$output .= '<div class="news">';
-		$output .= '<img src="'.$this->directory_uri.$this->thumb.'" alt="thumb" />';
+		$output .= '<img src="'.$this->thumb.'" alt="thumb" />';
 		
 		//news content
 		$output .= '<div class="news-content">';
@@ -558,6 +560,12 @@ class DirectoryHelperStaff extends DirectoryHelperConfig{
 			$this->isPrimary    = $json['isPrimary'];
 			$this->image        = $json['image'];
 
+			if($this->image == null){
+				$this->image = $this->blank_img;
+			} else {
+				$this->image = $this->directory_uri.$this->image;
+			}
+
 			//construct full name
 			$this->name = $this->fname.' '.$this->lname;
 			if($this->prefix != null){
@@ -578,7 +586,7 @@ class DirectoryHelperStaff extends DirectoryHelperConfig{
 
 		//start staff block, image
 		$output .= '<div class="staff">';
-		$output .= '<img src="'.$this->directory_uri.$this->image.'" alt="thumb" />';
+		$output .= '<img src="'.$this->image.'" alt="thumb" />';
 		
 		//staff content
 		$output .= '<div class="staff-content">';
