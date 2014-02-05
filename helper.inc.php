@@ -113,6 +113,27 @@ class DirectoryHelper extends DirectoryHelperConfig{
 		return $output;
 	}
 
+	//print an alert only if it is marked as site-wide
+	public function PrintSiteAlert(){
+		$output = null;
+		$sitewide = null;
+		if(empty($this->alerts)){
+			return $output;
+		}
+
+		foreach($this->alerts as $alert){
+			if($alert->GetScope() == true){
+				$sitewide = $alert;
+			}
+		}
+
+		if($sitewide instanceof DirectoryHelperAlert){
+			$output .= $sitewide->PrintAlert();
+		}
+
+		return $output;
+	}
+
 	//all alerts
 	public function PrintAlerts(){
 		$output = null;
@@ -280,6 +301,10 @@ class DirectoryHelperAlert extends DirectoryHelperConfig{
 
 	public function GetAlert(){
 		return [$this->title, $this->message, $this->url, $this->isPlanned, $this->isSiteWide];
+	}
+
+	public function GetScope(){
+		return $this->isSiteWide;
 	}
 
 	public function PrintAlert(){
