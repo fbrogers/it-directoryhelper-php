@@ -16,6 +16,7 @@ class DirectoryHelperConfig{
 		$this->directory_uri    = $config['DIRECTORY_URI'];
 		$this->archive_uri      = $config['ARCHIVE_URI'];
 		$this->feed_uri         = $config['FEED_URI'];
+		$this->collapse_uri     = $config['COLLAPSE_URI'];
 		$this->blank_img        = $config['BLANK_IMG'];
 		$this->blank_user       = $config['BLANK_USER'];
 		$this->allowed_html     = "<a><p><br><ol><ul><li><strong><em>";
@@ -24,6 +25,7 @@ class DirectoryHelperConfig{
 
 class DirectoryHelper extends DirectoryHelperConfig{
 	private $slug;
+	private $staff_collapsed;
 
 	//object containers
 	private $alerts	= [];
@@ -34,7 +36,10 @@ class DirectoryHelper extends DirectoryHelperConfig{
 	//to prevent object instantiation
 	public function __construct($slug){
 		parent::__construct();
+
+		//defaults
 		$this->slug = $slug;
+		$this->staff_collapsed = false;
 
 		//get data from feed specific to the site
 		$ch = curl_init($this->feed_uri.'/'.$slug);
@@ -68,6 +73,23 @@ class DirectoryHelper extends DirectoryHelperConfig{
 		foreach ($site['roles'] as $role) {
 			$this->roles[] = new DirectoryHelperRole($role);
 		}
+	}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+/*--- OPTION MUTATORS -----------------------------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+	public function SetBlankUser($user){
+		foreach ($this->news as $article) {
+			$article->ReplaceBlankUser(strip_tags($user));
+		}
+	}
+
+	public function StaffCollapsed($bool){
+		if(!is_bool($bool)){
+			throw new Exception("StaffCollapsed value must be a boolean value.", 1);
+		}
+		$this->staff_collapsed = $bool;
 	}
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -122,7 +144,7 @@ class DirectoryHelper extends DirectoryHelperConfig{
 
 		if(!empty($this->news)){
 			foreach($this->news as $article){
-				if(!$includeBillboards && !$article->HasBillboard()){
+				if($includeBillboards || !$article->HasBillboard()){
 					$output .= $article->PrintNews();
 				}
 			}
@@ -169,6 +191,10 @@ class DirectoryHelper extends DirectoryHelperConfig{
 	public function PrintStaff($headers = false){
 		$output = null;
 
+		if($this->staff_collapsed){
+			$output .= '<script type="text/javascript" src="'.$this->collapse_uri.'"></script>';
+		}
+
 		if(!empty($this->roles)){
 			foreach($this->roles as $role){
 				$output .= $role->PrintRole($headers);
@@ -184,6 +210,10 @@ class DirectoryHelper extends DirectoryHelperConfig{
 	public function PrintRole($name){
 		$output = null;
 		$selected = null;
+
+		if($this->staff_collapsed){
+			$output .= '<script type="text/javascript" src="'.$this->collapse_uri.'"></script>';
+		}
 
 		if(!empty($this->roles)){
 			foreach($this->roles as $role){
@@ -350,6 +380,12 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 			if(substr($this->url, 0, 6) == '/file/' || substr($this->url, 0, 9) == '/article/'){
 				$this->url = $this->directory_uri.$this->url;
 			}
+		}
+	}
+
+	public function ReplaceBlankUser($user){
+		if($this->user == $this->blank_user){
+			$this->user = $user;
 		}
 	}
 
@@ -540,11 +576,11 @@ class DirectoryHelperStaff extends DirectoryHelperConfig{
 			return $output;
 		}
 
-		//start news block, image
+		//start staff block, image
 		$output .= '<div class="staff">';
 		$output .= '<img src="'.$this->directory_uri.$this->image.'" alt="thumb" />';
 		
-		//news content
+		//staff content
 		$output .= '<div class="staff-content">';
 		$output .= '<div class="staff-name">'.$this->name.'</div>';
 		if($this->title != null){
@@ -557,10 +593,14 @@ class DirectoryHelperStaff extends DirectoryHelperConfig{
 			$output .= '<div class="staff-phone">'.$this->phone.'</div>';
 		}
 
-		//news body
-		$output .= '<p class="staff-details">'.nl2br($this->details).'</p>';
+		//staff body
+		if(strlen($this->details) != strlen(strip_tags($this->details))){
+			$output .= '<div class="staff-details">'.$this->details.'</div>';
+		} else {
+			$output .= '<div class="staff-details"><p>'.nl2br($this->details).'</p></div>';
+		}
 		
-		//end news block
+		//end staff block
 		$output .= '</div>';
 		$output .= '</div>';
 		$output .= '<div class="hr-blank"></div>';
