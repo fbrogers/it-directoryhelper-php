@@ -195,15 +195,19 @@ class DirectoryHelper extends DirectoryHelperConfig{
 		$output = null;
 
 		if(!empty($this->news)){
-
-			$output .= '<div id="slate_container"><div id="slate"><div id="slider">';
-
+			$billboards = null;
 			foreach($this->news as $article){
 				if($article->HasBillboard() != null){
-					$output .= $article->PrintBillboard();
+					$billboards .= $article->PrintBillboard();
 				}
 			}
 
+			if($billboards == null){
+				return $output;
+			}
+
+			$output .= '<div id="slate_container"><div id="slate"><div id="slider">';
+			$output .= $billboards;
 			$output .= '</div></div></div>';
 
 			foreach($this->news as $article){
@@ -464,7 +468,11 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 		$output .= '</div>';
 
 		//news body
-		$output .= '<p class="news-summary">'.nl2br($this->summary).'</p>';
+		if(strlen($this->summary) != strlen(strip_tags($this->summary))){
+			$output .= '<div class="news-summary">'.$this->summary.'</div>';
+		} else {
+			$output .= '<div class="news-summary"><p>'.nl2br($this->summary).'</p></div>';
+		}
 		
 		//extended article link
 		if($this->extended != null){
