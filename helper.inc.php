@@ -298,8 +298,8 @@ class DirectoryHelperAlert extends DirectoryHelperConfig{
 			$this->end          = $json['end'];
 			$this->isPlanned    = $json['isPlanned'];
 			$this->isSiteWide   = $json['isSiteWide'];
-			$this->created      = $json['created'];
-			$this->modified     = $json['modified'];
+			$this->created      = substr($json['created'], 0, -1);
+			$this->modified     = substr($json['modified'], 0, -1);
 		}
 	}
 
@@ -355,8 +355,8 @@ class DirectoryHelperDocument extends DirectoryHelperConfig{
 			$this->name         = strip_tags($json['name']);
 			$this->slug         = $json['slug'];
 			$this->url          = $json['url'];
-			$this->created      = $json['created'];
-			$this->modified     = $json['modified'];
+			$this->created      = substr($json['created'], 0, -1);
+			$this->modified     = substr($json['modified'], 0, -1);
 		}
 	}
 
@@ -407,8 +407,8 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 			$this->thumb        = $json['thumb'];
 			$this->billboard    = $json['billboard'];
 			$this->url          = $json['url'];
-			$this->created      = $json['posted'];
-			$this->modified     = $json['modified'];
+			$this->created      = substr($json['posted'], 0, -1);
+			$this->modified     = substr($json['modified'], 0, -1);
 
 			if($this->thumb == null){
 				$this->thumb = $this->blank_img;
