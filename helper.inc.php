@@ -400,6 +400,7 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 		//populate properties with json values
 		if(!empty($json)){
 			$this->id           = $json['id'];
+			$this->user         = $json['user'];
 			$this->title        = strip_tags($json['title']);
 			$this->strapline    = strip_tags($json['strapline']);
 			$this->summary      = strip_tags($json['summary'], $this->allowed_html);
