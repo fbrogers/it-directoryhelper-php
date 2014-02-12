@@ -214,15 +214,20 @@ class DirectoryHelper extends DirectoryHelperConfig{
 				if($article->HasBillboard() != null){
 					$output .= $article->PrintBillboardCaptions();
 				}
-			}			
+			}
 		}
 
 		return $output;
-	}	
+	}
 
 	//all staff
-	public function PrintStaff($headers = false){
+	public function PrintStaff($headers = false, $exclude = false){
 		$output = null;
+
+		//init with blank array if not valid input
+		if(!is_array($exclude) || empty($exclude)){
+			$exclude = [];
+		}
 
 		if($this->staff_collapsed){
 			$output .= '<script type="text/javascript" src="'.$this->collapse_uri.'"></script>';
@@ -230,7 +235,9 @@ class DirectoryHelper extends DirectoryHelperConfig{
 
 		if(!empty($this->roles)){
 			foreach($this->roles as $role){
-				$output .= $role->PrintRole($headers);
+				if(!in_array($role->GetName(), $exclude)){
+					$output .= $role->PrintRole($headers);
+				}
 			}
 		} else {
 			$output .= '<p>No staff members at this time.</p>';

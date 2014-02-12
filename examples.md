@@ -184,8 +184,9 @@ To keep the database schema simpler, all staff members are contained with roles.
 PrintStaff() will always return the complete list of staff from each role, with the first parameter controlling the visibility of the role headers.
 
 ```php
-<?= $helper->PrintStaff(); ?>       //prints all staff as one list
-<?= $helper->PrintStaff(true); ?>   //prints all staff grouped by role
+<?= $helper->PrintStaff(); ?>                 //prints all staff as one list
+<?= $helper->PrintStaff(true); ?>             //prints all staff grouped by role
+<?= $helper->PrintStaff(true, $exclude); ?>   //prints all staff grouped by role, excluding roles in array $exclude
 ```
 
 This will return all staff members in the JSON feed as HTML-formatted summaries, each spaced by a separator div. The staff details may contain raw html but will be filtered down using strip_tags and the root class property allowed_html.
@@ -213,6 +214,8 @@ If true is passed as a parameter, this HTML will print at the beginning of each 
 ```html
 <div class="staff-role">{{{role->name}}}</div>
 ```
+
+PrintStaff() can also accept a second parameter, which should be an array of strings that match any roles you do not wish to display. This is useful if there are roles that should only be displayed their own pages or views. For example, LEAD Scholars has a list of faculty and student leaders, but they wish to display those roles on specific pages and not on their main staff listing.
 
 ### Print a Single Role
 
