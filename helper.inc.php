@@ -476,17 +476,17 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 		$output .= '</div>';
 
 		//news body
+		$output .= '<div class="news-summary">';
 		if(strlen($this->summary) != strlen(strip_tags($this->summary))){
-			$output .= '<div class="news-summary">'.$this->summary.'</div>';
+			$output .= $this->summary;
 		} else {
-			$output .= '<div class="news-summary"><p>'.nl2br($this->summary).'</p></div>';
-		}
-		
-		//extended article link
+			$output .= '<p>'.nl2br($this->summary).'</p>';
+		}		
 		if($this->extended != null){
-			$output .= '<p><a href="'.$this->url.'">[Read More]</p>';
+			$output .= '<p><a href="'.$this->url.'">[Read More]</a></p>';
 		}
-		
+		$output .= '</div>';
+
 		//end news block
 		$output .= '</div>';
 		$output .= '</div>';
