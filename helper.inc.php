@@ -307,6 +307,10 @@ class DirectoryHelperAlert extends DirectoryHelperConfig{
 			$this->isSiteWide   = $json['isSiteWide'];
 			$this->created      = substr($json['created'], 0, -1);
 			$this->modified     = substr($json['modified'], 0, -1);
+
+			if(substr($this->url, 0, 6) == '/file/'){
+				$this->url = $this->directory_uri.$this->url;
+			}
 		}
 	}
 
