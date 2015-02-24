@@ -25,6 +25,7 @@ class DirectoryHelperConfig{
 
 class DirectoryHelper extends DirectoryHelperConfig{
 	private $slug;
+	private $isRev2015;
 	private $staff_collapsed;
 
 	//object containers
@@ -59,6 +60,7 @@ class DirectoryHelper extends DirectoryHelperConfig{
 
 		//isolate single site and CMS parts
 		$site = $json['sites'][0];
+		$this->isRev2015 = $site['isRev2015'];
 
 		//create child objects
 		foreach ($site['alerts'] as $alert) {
@@ -206,9 +208,25 @@ class DirectoryHelper extends DirectoryHelperConfig{
 				return $output;
 			}
 
-			$output .= '<div id="slate_container"><div id="slate"><div id="slider">';
+			if($this->isRev2015){
+				$output .= '<div class="container site-billboard theme-default">
+					<div id="slider">';
+			} else {
+				$output .= '<div id="slate_container">
+					<div id="slate">
+						<div id="slider">';
+			}
+
 			$output .= $billboards;
-			$output .= '</div></div></div>';
+
+			if($this->isRev2015){
+				$output .= '</div>
+					</div>';
+			} else {
+				$output .= '</div>
+						</div>
+					</div>';
+			}
 
 			foreach($this->news as $article){
 				if($article->HasBillboard() != null){
