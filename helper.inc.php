@@ -64,16 +64,16 @@ class DirectoryHelper extends DirectoryHelperConfig{
 
 		//create child objects
 		foreach ($site['alerts'] as $alert) {
-			$this->alerts[] = new DirectoryHelperAlert($alert);
+			$this->alerts[] = new DirectoryHelperAlert($alert, $this->isRev2015);
 		}
 		foreach ($site['documents'] as $doc) {
-			$this->docs[] = new DirectoryHelperDocument($doc);
+			$this->docs[] = new DirectoryHelperDocument($doc, $this->isRev2015);
 		}
 		foreach ($site['news'] as $article) {
-			$this->news[] = new DirectoryHelperArticle($article);
+			$this->news[] = new DirectoryHelperArticle($article, $this->isRev2015);
 		}
 		foreach ($site['roles'] as $role) {
-			$this->roles[] = new DirectoryHelperRole($role);
+			$this->roles[] = new DirectoryHelperRole($role, $this->isRev2015);
 		}
 	}
 
@@ -307,10 +307,11 @@ class DirectoryHelperAlert extends DirectoryHelperConfig{
 	private $end;
 	private $isPlanned;
 	private $isSiteWide;
+	private $isRev2015;
 	private $created;
 	private $modified;
 
-	public function __construct($json){
+	public function __construct($json, $isRev2015){
 		parent::__construct();
 
 		//populate properties with json values
@@ -325,6 +326,7 @@ class DirectoryHelperAlert extends DirectoryHelperConfig{
 			$this->isSiteWide   = $json['isSiteWide'];
 			$this->created      = substr($json['created'], 0, -1);
 			$this->modified     = substr($json['modified'], 0, -1);
+			$this->isRev2015	= $isRev2015;
 
 			if(substr($this->url, 0, 6) == '/file/'){
 				$this->url = $this->directory_uri.$this->url;
@@ -374,8 +376,9 @@ class DirectoryHelperDocument extends DirectoryHelperConfig{
 	private $url;
 	private $created;
 	private $modified;
+	private $isRev2015;
 
-	public function __construct($json){
+	public function __construct($json, $isRev2015){
 		parent::__construct();
 
 		//populate properties with json values
@@ -386,6 +389,7 @@ class DirectoryHelperDocument extends DirectoryHelperConfig{
 			$this->url          = $json['url'];
 			$this->created      = substr($json['created'], 0, -1);
 			$this->modified     = substr($json['modified'], 0, -1);
+			$this->isRev2015	= $isRev2015;
 		}
 	}
 
@@ -422,8 +426,9 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 	private $url;
 	private $created;
 	private $modified;
+	private $isRev2015;
 
-	public function __construct($json){
+	public function __construct($json, $isRev2015){
 		parent::__construct();
 
 		//populate properties with json values
@@ -439,6 +444,7 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 			$this->url          = $json['url'];
 			$this->created      = substr($json['posted'], 0, -1);
 			$this->modified     = substr($json['modified'], 0, -1);
+			$this->isRev2015	= $isRev2015;
 
 			if($this->thumb == null){
 				$this->thumb = $this->blank_img;
@@ -475,7 +481,12 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 
 		//start news block, image
 		$output .= '<div class="news">';
-		$output .= '<img src="'.$this->thumb.'" alt="thumb" />';
+
+		if($this->isRev2015){
+			$output .= '<img src="'.$this->thumb.'" alt="thumb" class="img-responsive" />';
+		} else {
+			$output .= '<img src="'.$this->thumb.'" alt="thumb" />';
+		}
 		
 		//news content
 		$output .= '<div class="news-content">';
@@ -561,18 +572,20 @@ class DirectoryHelperRole extends DirectoryHelperConfig{
 	private $id;
 	private $name;
 	private $staff = [];
+	private $isRev2015;
 
-	public function __construct($json){
+	public function __construct($json, $isRev2015){
 		parent::__construct();
 
 		//populate properties with json values
 		if(!empty($json)){
 			$this->id = $json['id'];
 			$this->name = strip_tags($json['name']);
+			$this->isRev2015 = $isRev2015;
 
 			//create child objects
 			foreach ($json['staff'] as $member) {
-				$this->staff[] = new DirectoryHelperStaff($member);
+				$this->staff[] = new DirectoryHelperStaff($member, $this->isRev2015);
 			}
 		}
 	}
@@ -617,8 +630,9 @@ class DirectoryHelperStaff extends DirectoryHelperConfig{
 	private $details;
 	private $isPrimary;
 	private $image;
+	private $isRev2015;
 
-	public function __construct($json){
+	public function __construct($json, $isRev2015){
 		parent::__construct();
 
 		//populate properties with json values
@@ -634,6 +648,7 @@ class DirectoryHelperStaff extends DirectoryHelperConfig{
 			$this->details      = strip_tags($json['details'], $this->allowed_html);
 			$this->isPrimary    = $json['isPrimary'];
 			$this->image        = $json['image'];
+			$this->isRev2015	= $isRev2015;
 
 			if($this->image == null){
 				$this->image = $this->blank_img;
@@ -661,7 +676,12 @@ class DirectoryHelperStaff extends DirectoryHelperConfig{
 
 		//start staff block, image
 		$output .= '<div class="staff">';
-		$output .= '<img src="'.$this->image.'" alt="thumb" />';
+
+		if($this->isRev2015){
+			$output .= '<img src="'.$this->image.'" alt="thumb" class="img-responsive" />';
+		} else {
+			$output .= '<img src="'.$this->image.'" alt="thumb" />';
+		}		
 		
 		//staff content
 		$output .= '<div class="staff-content">';
