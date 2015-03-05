@@ -493,7 +493,11 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 
 		//title with or without link
 		if($this->url != null){
-			$output .= '<div class="news-title bullets">';
+			if($this->isRev2015){
+				$output .= '<div class="news-title">';
+			} else {
+				$output .= '<div class="news-title bullets">';
+			}
 			$output .= '<a href="'.$this->url.'">'.$this->title.'</a>';
 			$output .= '</div>';
 		} else {
