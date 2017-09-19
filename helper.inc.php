@@ -509,7 +509,7 @@ class DirectoryHelperArticle extends DirectoryHelperConfig{
 		
 		//datestamp and authorship
 		$output .= '<div class="datestamp">';
-		$output .= 'Posted on '.date("l, F jS, Y @ g:ia", strtotime($this->created)).' by '.$this->user;
+		$output .= 'Posted on '.date("l, F jS, Y @ g:ia", strtotime($this->created));
 		$output .= '</div>';
 
 		//news body
